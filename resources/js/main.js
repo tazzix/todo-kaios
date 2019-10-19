@@ -1,3 +1,118 @@
+//========================================================================================
+// == Code for soft keys
+//========================================================================================
+
+const getCurrentElement = () => document.querySelector("[nav-selected=true]");
+
+const Enter = event => {
+  const currentElement = getCurrentElement();
+  currentElement.tagName === "INPUT"
+    ? addItem(currentElement.value)
+    : completeTodo(currentElement);
+};
+
+const SoftRight = event => {
+  const currentElement = getCurrentElement();
+  if (currentElement.tagName === "INPUT") return;
+  removeTodo(currentElement);
+};
+
+const SoftLeft = event => {
+};
+
+const setLabels = ({ left, center, right }) => {
+  document.getElementById("left").innerHTML = left ? left : "";
+  document.getElementById("center").innerHTML = center ? center : "";
+  document.getElementById("right").innerHTML = right ? right : "";
+};
+
+
+//========================================================================================
+// == Code for navigation using D-pad
+//========================================================================================
+
+
+(() => {
+  const firstElement = document.querySelectorAll("[nav-selectable]")[0];
+  firstElement.setAttribute("nav-selected", "true");
+  firstElement.setAttribute("nav-index", "0");
+  firstElement.focus();
+})();
+
+const getAllElements = () => document.querySelectorAll("[nav-selectable]");
+
+const getTheIndexOfTheSelectedElement = () => {
+  const element = document.querySelector("[nav-selected=true]");
+  return element ? parseInt(element.getAttribute("nav-index"), 10) : 0;
+};
+
+const selectElement = selectElement =>
+  [].forEach.call(getAllElements(), (element, index) => {
+    const selectThisElement = element === selectElement;
+    element.setAttribute("nav-selected", selectThisElement);
+    element.setAttribute("nav-index", index);
+    if (element.nodeName === 'INPUT') {
+      selectThisElement ? element.focus() : element.blur();
+    }
+  });
+
+const Navigate = (direction, event) => {
+  const allElements = getAllElements();
+  const currentIndex = getTheIndexOfTheSelectedElement();
+  var setIndex;
+
+  switch(direction) {
+    case "DOWN":
+      const goToFirstElement = currentIndex + 1 > allElements.length - 1;
+      setIndex = goToFirstElement ? 0 : currentIndex + 1;
+      break;
+    case "UP":
+      const goToLastElement = currentIndex === 0;
+      setIndex = goToLastElement ? allElements.length - 1 : currentIndex - 1;
+      break;
+    default:
+      break;
+  }
+
+  selectElement(allElements[setIndex] || allElements[0]);
+  setSoftkey(setIndex);
+
+  const element = document.querySelector("[nav-selected=true]");
+  //element.scrollIntoView(false);
+  scrollToElement(element);
+}
+
+function scrollToElement(element) {
+  // skip for header (or other non-scrolling elements in future)
+  if (parseInt(element.getAttribute("nav-index"), 10) == 0) return;
+
+  var rect = element.getBoundingClientRect();
+
+  if (rect.top < 50) { // header is 50px height at this time
+    let moveUp = rect.top - 54; // header + padding at this time
+    document.querySelector("#main-content").scrollBy({
+      top: moveUp
+    });
+  }
+
+  if (rect.bottom > (window.innerHeight-30)) { // 30px is the height of softkey bar (footer) at this time
+    let moveDown = rect.bottom - window.innerHeight + 36;
+    document.querySelector("#main-content").scrollBy({
+      top: moveDown
+    });
+  }
+}
+
+const setSoftkey = setIndex =>
+  setLabels({
+    center: setIndex === 0 ? "Insert" : "Toggle",
+    right: setIndex === 0 ? "" : "Delete"
+  });
+
+
+//========================================================================================
+// == Code for logic of app
+//========================================================================================
 
 var data = (localStorage.getItem('todoList')) ? JSON.parse(localStorage.getItem('todoList')):{
   todo: [],
@@ -19,12 +134,12 @@ document.getElementById('add').addEventListener('click', function() {
   }
 });
 
-document.getElementById('item').addEventListener('keydown', function (e) {
+/*document.getElementById('item').addEventListener('keydown', function (e) {
   var value = this.value;
   if ((e.code === 'Enter' || e.code === 'NumpadEnter') && value) {
     addItem(value);
   }
-});
+});*/
 
 function addItem (value) {
   addItemToDOM(value);
@@ -54,6 +169,10 @@ function dataObjectUpdated() {
 
 function removeItem() {
   var item = this.parentNode.parentNode;
+  removeTodo(item);
+}
+
+function removeTodo(item) {
   var parent = item.parentNode;
   var id = parent.id;
   var value = item.innerText;
@@ -66,13 +185,18 @@ function removeItem() {
   dataObjectUpdated();
 
   parent.removeChild(item);
+  Up();
 }
 
 function completeItem() {
   var item = this.parentNode.parentNode;
+  completeTodo(item);
+}
+
+function completeTodo(item) {
   var parent = item.parentNode;
   var id = parent.id;
-  var value = item.innerText;
+  var value = item.firstChild.data;
 
   if (id === 'todo') {
     data.todo.splice(data.todo.indexOf(value), 1);
@@ -95,7 +219,7 @@ function addItemToDOM(text, completed) {
   var list = (completed) ? document.getElementById('completed'):document.getElementById('todo');
 
   var item = document.createElement('li');
-  item.innerText = text;
+  item.innerHTML = text;
 
   var buttons = document.createElement('div');
   buttons.classList.add('buttons');
@@ -117,6 +241,29 @@ function addItemToDOM(text, completed) {
   buttons.appendChild(remove);
   buttons.appendChild(complete);
   item.appendChild(buttons);
+  item.setAttribute("nav-selectable", "true");
 
   list.insertBefore(item, list.childNodes[0]);
 }
+
+
+//========================================================================================
+// == Key handling on keyboard
+//========================================================================================
+
+document.addEventListener("keydown", event => {
+  switch (event.key) {
+    case "Enter":
+    case "NumpadEnter":
+      return Enter(event);
+    case "ArrowDown":
+      return Navigate("DOWN", event);
+    case "ArrowUp":
+      return Navigate("UP", event);
+    //case "ArrowRight": // TODO: for use on buggy emulator, could be a good idea to remove after testing
+    case "SoftRight":
+      return SoftRight(event);
+    default:
+      return;
+  }
+});
