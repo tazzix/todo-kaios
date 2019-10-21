@@ -1,0 +1,42 @@
+{
+    "name": "Todo",
+    "description": "A todo app for KaiOS - pwa",
+    "short_name": "Todo",
+    "theme_color": "#25b99a",
+    "background_color": "#25b99a",
+    "display": "standalone",
+    "Scope": "/",
+    "start_url": "/",
+    "icons": [
+        {
+          "src": "icons/icon16x16.png",
+          "sizes": "16x16",
+          "type": "image/png"
+        },
+        {
+          "src": "icons/icon48x48.png",
+          "sizes": "48x48",
+          "type": "image/png"
+        },
+        {
+          "src": "icons/icon60x60.png",
+          "sizes": "60x60",
+          "type": "image/png"
+        },
+        {
+          "src": "icons/icon128x128.png",
+          "sizes": "128x128",
+          "type": "image/png"
+        },
+        {
+            "src": "icons/icon144x144.png",
+            "sizes": "144x144",
+            "type": "image/png"
+          }
+      ],
+    "splash_pages": null,
+    "developer": {
+        "name": "tazzix",
+        "url": "https://github.com/tazzix/"
+    }
+}
