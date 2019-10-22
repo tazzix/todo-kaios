@@ -22,9 +22,7 @@ const getCurrentElement = () => document.querySelector("[nav-selected=true]");
 
 const Enter = event => {
   const currentElement = getCurrentElement();
-  currentElement.tagName === "INPUT"
-    ? addItem(currentElement.value)
-    : completeTodo(currentElement);
+  if (currentElement.tagName === "INPUT") addItem(currentElement.value); else completeTodo(currentElement);
 };
 
 const SoftRight = event => {
@@ -68,7 +66,7 @@ const selectElement = selectElement =>
     element.setAttribute("nav-selected", selectThisElement);
     element.setAttribute("nav-index", index);
     if (element.nodeName === 'INPUT') {
-      selectThisElement ? element.focus() : element.blur();
+      if (selectThisElement) element.focus(); else element.blur();
     }
   });
 
@@ -96,7 +94,7 @@ const Navigate = (direction, event) => {
   const element = document.querySelector("[nav-selected=true]");
   //element.scrollIntoView(false);
   scrollToElement(element);
-}
+};
 
 function scrollToElement(element) {
   // skip for header (or other non-scrolling elements in future)
@@ -166,15 +164,16 @@ function addItem (value) {
 }
 
 function renderTodoList() {
+  var value;
   if (!data.todo.length && !data.completed.length) return;
 
   for (var i = 0; i < data.todo.length; i++) {
-    var value = data.todo[i];
+    value = data.todo[i];
     addItemToDOM(value);
   }
 
   for (var j = 0; j < data.completed.length; j++) {
-    var value = data.completed[j];
+    value = data.completed[j];
     addItemToDOM(value, true);
   }
 }

@@ -4,13 +4,19 @@
   "description": "A simple task application using only Vanilla",
   "main": "index.html",
   "scripts": {
-    "start": "parcel index.html --out-dir build --open && cp ./manifest.webapp ./build/ && cp -r ./assets/ ./build/",
-    "build": "parcel build index.html --out-dir build && cp ./manifest.webapp ./build/ && cp -r ./assets/ ./build/"
+    "start": "parcel index.html --out-dir build --open && cp ./manifest.webapp ./build/ && cp -r ./resources/ ./build/ && cp -r ./icons/ ./build/",
+    "build": "parcel build index.html --out-dir build && cp ./manifest.webapp ./build/ && cp -r ./resources/ ./build/ && cp -r ./icons/ ./build/"
   },
   "dependencies": {},
   "devDependencies": {
     "@babel/core": "7.2.0",
     "parcel-bundler": "^1.6.1"
+  },
+  "jshintConfig" : {
+    "esversion" : "8",
+    "globals": {
+      "MY_GLOBAL": true
+    }  
   },
   "keywords": [
     "vanilla",
